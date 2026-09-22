@@ -116,16 +116,6 @@ function budgetStatus(budgetTotal, spent) {
   return "ok";
 }
 
-const defaultItems = [
-  { name: "Đào tạo nội bộ", description: "Chi phí tổ chức các khóa đào tạo nội bộ, train-the-trainer, đào tạo nghiệp vụ cho nhân sự PKT và mạng lưới đại lý." },
-  { name: "Đào tạo bên ngoài / thuê giảng viên", description: "Chi phí thuê chuyên gia, giảng viên bên ngoài, các khóa học mua từ đối tác đào tạo." },
-  { name: "Văn phòng phẩm & in ấn", description: "In ấn tài liệu đào tạo, văn phòng phẩm phục vụ các lớp học và sự kiện." },
-  { name: "Đi lại & công tác phí", description: "Vé máy bay, khách sạn, công tác phí cho đội ngũ đào tạo di chuyển giữa các thị trường." },
-  { name: "Sự kiện & hội thảo", description: "Chi phí tổ chức sự kiện, hội thảo, pilot chương trình, workshop nội bộ." },
-  { name: "Công cụ & phần mềm", description: "Bản quyền LMS, phần mềm hỗ trợ thiết kế và quản lý đào tạo." },
-  { name: "Khác", description: "Các khoản chi phát sinh khác không thuộc các nhóm trên." },
-];
-
 let state = { tab: "dashboard", year: 2026, expandedItemId: null, showAddForm: false, acctFilterMonth: "all", acctFilterItem: "all", items: [], budgets: [], expenses: [] };
 
 /* ---- Supabase <-> local state mapping ---- */
@@ -148,12 +138,7 @@ async function fetchAllData() {
   if (budgetsRes.error) throw budgetsRes.error;
   if (expensesRes.error) throw expensesRes.error;
 
-  let items = itemsRes.data.map(mapItem);
-  if (items.length === 0) {
-    const seeded = await sb.from("budget_items").insert(defaultItems).select();
-    if (seeded.error) throw seeded.error;
-    items = seeded.data.map(mapItem);
-  }
+  const items = itemsRes.data.map(mapItem);
   const budgets = budgetsRes.data.map(function(r) { return mapBudget(r, items); });
   const expenses = expensesRes.data.map(mapExpense);
   return { items: items, budgets: budgets, expenses: expenses };

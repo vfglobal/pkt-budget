@@ -54,3 +54,18 @@ create policy "signed-in users can read expenses" on public.budget_expenses
   for select using (auth.role() = 'authenticated');
 create policy "signed-in users can write expenses" on public.budget_expenses
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+-- One-time seed of the default commitment items. Only runs on a table that
+-- has never had a row — deleting items later must not bring them back, so
+-- this is not repeated anywhere in the app itself.
+insert into public.budget_items (name, description)
+select * from (values
+  ('Đào tạo nội bộ', 'Chi phí tổ chức các khóa đào tạo nội bộ, train-the-trainer, đào tạo nghiệp vụ cho nhân sự PKT và mạng lưới đại lý.'),
+  ('Đào tạo bên ngoài / thuê giảng viên', 'Chi phí thuê chuyên gia, giảng viên bên ngoài, các khóa học mua từ đối tác đào tạo.'),
+  ('Văn phòng phẩm & in ấn', 'In ấn tài liệu đào tạo, văn phòng phẩm phục vụ các lớp học và sự kiện.'),
+  ('Đi lại & công tác phí', 'Vé máy bay, khách sạn, công tác phí cho đội ngũ đào tạo di chuyển giữa các thị trường.'),
+  ('Sự kiện & hội thảo', 'Chi phí tổ chức sự kiện, hội thảo, pilot chương trình, workshop nội bộ.'),
+  ('Công cụ & phần mềm', 'Bản quyền LMS, phần mềm hỗ trợ thiết kế và quản lý đào tạo.'),
+  ('Khác', 'Các khoản chi phát sinh khác không thuộc các nhóm trên.')
+) as seed(name, description)
+where not exists (select 1 from public.budget_items);
